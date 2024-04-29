@@ -1,6 +1,6 @@
 # CC-CP-Centralized-Monitoring
 
-### This project is an example of monitoring both confluent cloud and confluent platform using a single grafana dashboad. Here, we are also using single CP Control center to manage both kafka clusters. 
+##### This project is an example of monitoring both confluent cloud and confluent platform using a single grafana dashboad. Here, we are also using single CP Control center to manage both kafka clusters. 
 
 ## Architecture 
 
@@ -24,6 +24,23 @@ terraform apply
 ## Prometheus Modification
 ```console
 # Prometheus.yaml in k8s secrets to use CC Metrics API
+
+scrape_configs:
+  - job_name: Confluent Cloud
+    scrape_interval: 1m
+    scrape_timeout: 1m
+    honor_timestamps: true
+    static_configs:
+      - targets:
+        - api.telemetry.confluent.cloud
+    scheme: https
+    basic_auth:
+      username: <Cloud API Key>
+      password: <Cloud API Secret>
+    metrics_path: /v2/metrics/cloud/export
+    params:
+      "resource.kafka.id":
+        - lkc-xxxxx
 ```
 
 ## Teardown
