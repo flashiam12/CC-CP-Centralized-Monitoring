@@ -1,0 +1,24 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: ControlCenter
+metadata:
+  name: controlcenter
+  namespace: ${namespace}
+spec:
+  monitoringKafkaClusters:  
+  - name: ${cc_aws_kafka_name}       
+    bootstrapEndpoint:  ${cc_aws_kafka_bootstrap}
+    authentication:
+      type: plain
+      jaasConfig:
+        secretRef: ${ccloud_apisecret}
+    tls:
+      enabled: true
+      ignoreTrustStoreConfig: true 
+  replicas: 1
+  image:
+    application: confluentinc/cp-enterprise-control-center:7.6.0
+    init: confluentinc/confluent-init-container:2.8.0
+  dataVolumeCapacity: 10Gi
+  dependencies:
+    kafka:
+      bootstrapEndpoint: kafka:9071

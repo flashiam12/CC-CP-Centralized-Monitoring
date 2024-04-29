@@ -1,0 +1,8 @@
+terraform.tfstate
+./terraform.tfstate
+.terraform
+.terraform.lock.hcl
+setup.sh
+./setup.sh
+terraform.tfstate.backup
+./terraform.tfstate.backup

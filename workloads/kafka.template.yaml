@@ -1,0 +1,52 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: KRaftController
+metadata:
+  name: kraftcontroller
+  namespace: ${namespace}
+spec:
+  dataVolumeCapacity: 10G
+  image:
+    application: docker.io/confluentinc/cp-server:7.6.0
+    init: confluentinc/confluent-init-container:2.8.0
+  replicas: 3
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: Kafka
+metadata:
+  name: kafka
+  namespace: ${namespace}
+spec:
+  replicas: 3
+  image:
+    application: confluentinc/cp-server:7.6.0
+    init: confluentinc/confluent-init-container:2.8.0
+  dataVolumeCapacity: 50Gi
+  listeners:
+    external:
+      externalAccess:
+        type: loadBalancer
+        loadBalancer:
+          bootstrapPrefix: ${bootstrap_prefix}
+          brokerPrefix: ${broker_prefix}
+          domain: ${domain}
+          annotations: 
+            # networking.gke.io/load-balancer-type: "External"
+            networking.gke.io/internal-load-balancer-allow-global-access: "true"
+      authentication:
+        type: plain
+        jaasConfig:
+          secretRef: credential
+  dependencies:
+    kRaftController:
+      clusterRef:
+        name: kraftcontroller
+  services:
+    kafkaRest:
+      authentication:
+        type: basic
+        basic:
+          secretRef: credential
+          roles:
+            - Administrators
+  passwordEncoder:
+    secretRef: password-encoder-secret
